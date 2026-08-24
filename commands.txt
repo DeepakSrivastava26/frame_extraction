@@ -1,0 +1,14 @@
+Create videos.txt 
+
+file 'vid1.MP4'
+file 'vid2.MP4'
+file 'vid3.MP4'
+
+
+Run the below commands
+
+mkdir -p frames
+
+ffmpeg -f concat -safe 0 -i videos.txt \
+-vsync 0 \
+frames/frame_%06d.png
