@@ -20,3 +20,7 @@ frames/frame_%06d.png
 for frames
 
 ffmpeg -i GX010709.mp4 -vf "fps=2" frame_%06d.png
+
+
+
+to check video properties : exiftool a.mp4
