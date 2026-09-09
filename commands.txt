@@ -24,3 +24,47 @@ ffmpeg -i GX010709.mp4 -vf "fps=2" frame_%06d.png
 
 
 to check video properties : exiftool a.mp4
+
+
+
+
+
+to shift frames for time sync:
+find frames2 -maxdepth 1 -type f -name 'frame_*.png' | sort -V | tail -n +166 | \
+> awk '{
+>     cmd = sprintf("cp \"%s\" \"frames2_synced/frame_%06d.png\"", $0, NR);
+>     system(cmd);
+> }'
+
+
+--------------------------------------------------------------------------------------
+
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ mkdir -p frames_synced
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ 
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ TOTAL=$(find frames -maxdepth 1 -type f -name 'frame_*.png' | sort -V | tail -n +724 | wc -l)
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ 
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ echo "Frames to copy: $TOTAL"
+Frames to copy: 40036
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ 
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ START=$(date +%s)
+(base) user@user-OptiPlex-9020:/media/user/One Touch/August_Parundu_data_collection/Aug_21_2026/5.51/1$ 
+
+find frames -maxdepth 1 -type f -name 'frame_*.png' | sort -V | tail -n +724 | \
+> awk -v start="$START" -v total="$TOTAL" '{
+>     cmd = sprintf("cp \"%s\" \"frames_synced/frame_%06d.png\"", $0, NR);
+>     system(cmd);
+> 
+>     if (NR % 100 == 0 || NR == total) {
+>         elapsed = systime() - start;
+>         rate = NR / elapsed;
+> 
+>         remaining = total - NR;
+>         eta = remaining / rate;
+> 
+>         printf "Copied: %d/%d (%.1f%%) | Speed: %.2f frames/s | Elapsed: %d s | ETA: %.0f s\n",
+>                NR, total, (NR/total)*100, rate, elapsed, eta;
+>         fflush();
+>     }
+> }'
+
+
